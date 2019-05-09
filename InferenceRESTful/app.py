@@ -116,8 +116,8 @@ api.add_resource(vanillaEngine, '/infer/vanilla')
 api.add_resource(globalEngine, '/infer/global')
 api.add_resource(privateEngine, '/infer/private')
 
-api.add_resource(universalOnlineTrainer, '/feedback/universal')
-api.add_resource(universalBatchTrainer, '/train/universal')
+#api.add_resource(universalOnlineTrainer, '/feedback/universal')
+#api.add_resource(universalBatchTrainer, '/train/universal')
 
 api.add_resource(universalOnlineTrainer, '/feedback/private')
 api.add_resource(universalBatchTrainer, '/train/private')
