@@ -196,8 +196,18 @@ def dashboard():
 @app.route("/inferAPI/create", methods=["GET", "POST"])
 def createModel():
     if "login" in session:
-        ss = session['login'] 
-        vv = request.values['templatekey'].split(':')
+        try:
+            print("non json request")
+            templatekey = request.values['templatekey']
+            user = request.values['user']
+        except:
+            data = request.get_json(force=True)
+            print("json request")
+            apiKey = data['templatekey']
+            user = data['user']
+            print(data)
+        ss = user
+        vv = templatekey.split(':')
         templatekey = vv[0]
         modelid = vv[1]
         val,org = db.createNewModel(ss, templatekey, modelid)
