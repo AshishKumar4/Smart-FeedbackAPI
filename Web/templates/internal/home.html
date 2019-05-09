@@ -108,8 +108,9 @@
                         </script>
                     </div>
                 </div><br>
+                <textarea rows=1 cols=30 id="templatekey">default</textarea>
                 <div id="createModel" class="container text-center styled-button">
-                    <a href="/createModel" id="resume">Create a new model!</a>
+                    <button id="resume" onclick="createModel('{{ profile_id | safe }}');">Create a new model!</button>
                 </div>
             </div>
         </div>

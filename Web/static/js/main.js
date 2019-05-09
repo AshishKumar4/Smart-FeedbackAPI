@@ -98,3 +98,21 @@ function loadModel(user)
     xhttp.open("POST", "/inferAPI/save", true);
     xhttp.send(JSON.stringify(postdata));
 }
+
+function createModel(user)
+{
+    var key = document.getElementById("templatekey").value;
+    var postdata = {templatekey:key, user:user};
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () 
+    {
+        if (this.readyState == 4 && this.status == 200) 
+        {
+            //document.getElementById("hint-box").innerHTML = this.responseText;
+            alert(this.responseText);
+            //document.getElementById("saveModel").style.visibility = "hidden";
+        }
+    };
+    xhttp.open("POST", "/inferAPI/create", true);
+    xhttp.send(JSON.stringify(postdata));
+}

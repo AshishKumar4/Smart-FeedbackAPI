@@ -193,10 +193,13 @@ def dashboard():
         return redirect("/login_user")
     return render_template('/500.html')
 
-@app.route("/createModel", methods=["GET", "POST"])
+@app.route("/inferAPI/create", methods=["GET", "POST"])
 def createModel():
     if "login" in session:
         ss = session['login'] 
+        templatekey = request.values['templatekey']
+        val = db.createNewModel(ss, templatekey)
+        result = AIengine.createModel(val)
     else:
         return redirect("/login_user")
     return "Done"
@@ -269,8 +272,10 @@ def inferAPI_feedback():
         return jsonify("Sorry, but Vanilla model cannot be improved automatically")
     elif val['model_type'] == 'global':
         # Delayed Learning, Store the feedbacks for now in a global database:
-        db.saveFeedBacks(callID, feedback)
+        #db.saveFeedBacks(callID, feedback)
         # A Cron Job would update the model at regular intervals
+        print(callID)
+        AIengine.engine.feedback({"model_type":val['model_type'], "model_id":val['model_id'], 'text':db.getTextFromCall(callID), "label":label})
     elif val['model_type'] == 'private':
         # Send request immidiately for Online Learning
         print(callID)
