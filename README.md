@@ -8,6 +8,6 @@ INSTALLATION:
 
 RUN:
     in /Web Directory, Enter command
-
+        sudo uwsgi --master --workers 9 --threads 9 --socket 0.0.0.0:80 --protocol=http -w app:app --enable-threads
     in /InferenceRESTful, Enter command
-        FLASK_APP=app.py python3 -m flask run --host 0.0.0.0
+        sudo FLASK_APP=app.py python3 -m flask run --host 0.0.0.0

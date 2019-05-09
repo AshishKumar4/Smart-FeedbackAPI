@@ -9,12 +9,36 @@ from AIengine import *
 app = Flask(__name__)
 api = Api(app)
 
+# Filtering and Tokening Data text
+def tokenizer(data):
+    badWords = ['and', 'a', 'travelling', 'to', 'of', 'Platiunum', 'techkie', 'cPs']
+    #inputSet = [[x for x in i['reviewText'].replace(',',' ').split(' ')] for i in dataset[:1]]
+    inputSet = [re.sub("#[A-Za-z0-9]+|@[A-Za-z0-9]+|\\w+(?:\\.\\w+)*/\\S+", "", i) for i in data]
+    inputSet = [[(x) for x in re.split('\W+', re.sub("[!@#$+%*:()'-]", ' ', i)) if x != ''] for i in inputSet]
+    for i in inputSet:
+        for j in range(0,len(i)):
+            if re.match('^\d{4}$', i[j]):
+                #print(i[j])
+                i[j] = 'year'
+            elif re.search('[0-9]', i[j]):
+                if re.search('[a-zA-Z]', i[j]):
+                    i[j] = 'item'
+                else:
+                    i[j] = 'num'
+            elif i[j] in badWords:
+                i[j] = 'AXTREMOVE'
+    inputSet = [re.sub('AXTREMOVE', '', '-'.join(i)).split('-') for i in inputSet]
+    return inputSet
+
+sentiDict = {0:'negative', 1:'positive'}
+sarcasmDict = {1:'negative', 0:'positive'}
+
 privateModels = dict()
 privateModels['global'] = evalModel
 privateModels['vanilla'] = tf.keras.models.load_model('./models/private/vanilla.h5')
 
 def cleaner(text):
-    return text.lower
+    return ' '.join(tokenizer([text.lower]))
 
 class vanillaEngine(Resource):
     def post(self):
