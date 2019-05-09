@@ -55,7 +55,7 @@ Actions possible ->
     2. Incremental Learning: Incremental Learning refers to training the model by sending feedback wether
             the input is correct or not. Not available for private
         i) Universal Online Trainer: Trains both private and global models 
-            URL: http://<ip>:5000/feedback/universal
+            URL: http://<ip>:5000/feedback/private
             POST data: {'text':"Hello World", 'label':'Negative', 'model_id':'testing'}
             # We need to provide corrected label as label above. 
             # For Global models, just put model_id = global above 
@@ -64,12 +64,12 @@ Actions possible ->
             import requests as re 
             import json
             postdata = {'text':"Hello World", 'label':'Negative', 'model_id':'testing'}
-            result = re.post("http://localhost:5000/feedback/universal", data=json.dumps(postdata))
+            result = re.post("http://localhost:5000/feedback/private", data=json.dumps(postdata))
             print(result.text)
             # OUTPUT: {'Done'}
 
         ii) Universal Batch Trainer: Trains both private and global models on a provided JSON Dataset
-            URL: http://<ip>:5000/train/universal
+            URL: http://<ip>:5000/train/private
             POST data: {'dataset':data, 'model_id':'testing'}
             # Dataset is a JSON List of tuples object with each entry being of type ('some statement':0)
             # 0 for negative, 1 for positive
@@ -82,7 +82,7 @@ Actions possible ->
             data = [i.split(':') for i in rawdata]
 
             postdata = {'dataset':data, 'model_id':'testing'}
-            result = re.post("http://localhost:5000/train/universal", data=json.dumps(postdata))
+            result = re.post("http://localhost:5000/train/private", data=json.dumps(postdata))
             print(result.text)
             # OUTPUT: {'Done'}
 

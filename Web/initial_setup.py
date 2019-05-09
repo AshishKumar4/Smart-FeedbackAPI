@@ -13,6 +13,7 @@ dusers.save(da)
 dapis = df['api_keys']
 
 da = {"_id":"default", "model_type":"vanilla", "model_id":"first", "user":"admin"}
+dapis.save(da)
 da = {"_id":"testing", "model_type":"private", "model_id":"second", "user":"admin"}
 dapis.save(da)
 

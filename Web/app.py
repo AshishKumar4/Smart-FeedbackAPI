@@ -145,6 +145,17 @@ def resendOTP():
         return render_template("/resendOTP.html", resp = "")
         #return render_template('/landing/login/register.html', resp = "")
 
+
+@app.route("/logout", methods=["GET", "POST"])
+def logout():
+    global db
+    del db 
+    db = Database("mongodb://localhost:27017/")
+    session.pop('login', None)
+    session.pop('feedpos', None)
+    return redirect("/login_user")#render_template("/login_user.html")
+
+
 ########################################## ADMIN Dashboard and Secret Stuffs ##########################################
 
 @app.route("/admin", methods=["GET", "POST"])

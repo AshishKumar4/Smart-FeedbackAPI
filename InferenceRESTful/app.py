@@ -35,10 +35,10 @@ sarcasmDict = {1:'negative', 0:'positive'}
 
 privateModels = dict()
 privateModels['global'] = evalModel
-privateModels['vanilla'] = tf.keras.models.load_model('./models/private/vanilla.h5')
+privateModels['vanilla'] = tf.keras.models.load_model('./models/vanilla.h5')
 
 def cleaner(text):
-    return ' '.join(tokenizer([text.lower])[0])
+    return ' '.join(tokenizer([text.lower()])[0])
 
 class vanillaEngine(Resource):
     def post(self):
@@ -76,6 +76,45 @@ class privateEngine(Resource):
         return jsonify(rr)
 
 # Online Learning APIs ==>
+class globalOnlineTrainer(Resource):
+    def post(self):
+        obj = request.get_json(force=True)
+        print(obj)
+        x = np.array(embed(tf.constant([cleaner(obj['text'])]))[:1])
+        if obj['label'] == 'Negative':
+            y = [1., 0.]
+        else:
+            y = [0., 1.]
+        y = np.array([y])
+        print(x)
+        print(y)
+        st = tf.keras.callbacks.EarlyStopping(monitor='accuracy', min_delta=0.1, mode='max', verbose=1, patience=100, restore_best_weights=True)
+        privateModels['global'].fit(x, y, epochs = 500, callbacks=[st])
+        privateModels['global'].evaluate(x, y)
+        val = privateModels['global'].predict(x)
+        print(val)
+        print(obj['text'])
+        return jsonify("Done")
+
+class globalBatchTrainer(Resource):
+    def post(self):
+        # Format => should consist of data pairs (x, y)
+        obj = request.get_json(force=True)
+        print(obj)
+        X = [cleaner(i[0]) for i in obj['dataset']]
+        Y = [i[1] for i in obj['dataset']]
+        x = np.array(embed(tf.constant(X)))
+        y = keras.utils.to_categorical(np.array(Y))
+        #print(x)
+        #print(y)
+        st = tf.keras.callbacks.EarlyStopping(monitor='accuracy', min_delta=0.1, mode='max', verbose=1, patience=500, restore_best_weights=True)
+        privateModels['global'].fit(x, y, epochs = 5000, callbacks=[st])
+        privateModels['global'].evaluate(x, y)
+        val = privateModels['global'].predict(x)
+        print(val)
+        print(obj['text'])
+        return jsonify("Done")
+
 class universalOnlineTrainer(Resource):
     def post(self):
         obj = request.get_json(force=True)
@@ -140,8 +179,8 @@ api.add_resource(vanillaEngine, '/infer/vanilla')
 api.add_resource(globalEngine, '/infer/global')
 api.add_resource(privateEngine, '/infer/private')
 
-#api.add_resource(universalOnlineTrainer, '/feedback/universal')
-#api.add_resource(universalBatchTrainer, '/train/universal')
+api.add_resource(globalOnlineTrainer, '/feedback/global')
+api.add_resource(globalBatchTrainer, '/train/global')
 
 api.add_resource(universalOnlineTrainer, '/feedback/private')
 api.add_resource(universalBatchTrainer, '/train/private')
