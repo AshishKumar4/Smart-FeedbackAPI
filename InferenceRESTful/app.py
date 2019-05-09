@@ -2,6 +2,7 @@
 from flask import *
 from flask_restful import *
 from json import dumps
+import subprocess
 
 from AIengine import *
 
@@ -9,6 +10,9 @@ app = Flask(__name__)
 api = Api(app)
 
 privateModels = dict()
+privateModels['global'] = evalModel
+privateModels['vanilla'] = tf.keras.models.load_model('./models/private/vanilla.h5')
+
 def cleaner(text):
     return text.lower
 
@@ -16,7 +20,7 @@ class vanillaEngine(Resource):
     def post(self):
         obj = request.get_json(force=True)
         print(obj)
-        val = evalModel.predict(embed(tf.constant([cleaner(obj['text'])]))[:1])
+        val = privateModels['vanilla'].predict(embed(tf.constant([cleaner(obj['text'])]))[:1])
         rr = sentDict[np.argmax(val)]
         #rr.append(list(val))
         print(rr)
@@ -26,7 +30,12 @@ class globalEngine(Resource):
     def post(self):
         obj = request.get_json(force=True)
         print(obj)
-        return None
+        val = privateModels['global'].predict(embed(tf.constant([obj['text']]))[:1])
+        rr = sentDict[np.argmax(val)]
+        #rr.append(list(val))
+        print(rr)
+        print(val)
+        return jsonify(rr)
 
 class privateEngine(Resource):
     def post(self):
@@ -35,7 +44,7 @@ class privateEngine(Resource):
         if obj['model_id'] not in privateModels:
             # Model not already in memory, load it
             privateModels[obj['model_id']] = tf.keras.models.load_model('./models/private/' + obj['model_id'] + '.h5')
-        val = privateModels[obj['model_id']].predict(embed(tf.constant([obj['sentence']]))[:1])
+        val = privateModels[obj['model_id']].predict(embed(tf.constant([obj['text']]))[:1])
         rr = sentDict[np.argmax(val)]
         #rr.append(list(val))
         print(rr)
@@ -43,7 +52,7 @@ class privateEngine(Resource):
         return jsonify(rr)
 
 # Online Learning APIs ==>
-class privateOnlineTrainer(Resource):
+class universalOnlineTrainer(Resource):
     def post(self):
         obj = request.get_json(force=True)
         print(obj)
@@ -63,7 +72,7 @@ class privateOnlineTrainer(Resource):
         print(obj['text'])
         return jsonify("Done")
 
-class privateBatchTrainer(Resource):
+class universalBatchTrainer(Resource):
     def post(self):
         # Format => should consist of data pairs (x, y)
         obj = request.get_json(force=True)
@@ -82,28 +91,45 @@ class privateBatchTrainer(Resource):
         print(obj['text'])
         return jsonify("Done")
 
-class privateOnlineLoad(Resource):
+# Utilities ->
+
+class loadModel(Resource):
     def post(self):
         obj = request.get_json(force=True)
         privateModels[obj['model_id']] = tf.keras.models.load_model('./models/private/' + obj['model_id'] + '.h5')
         return jsonify("Loaded")
 
-class privateOnlineSave(Resource):
+class saveModel(Resource):
     def post(self):
         obj = request.get_json(force=True)
         privateModels[obj['model_id']].save('./models/private/' + obj['model_id'] + '.h5')
         return jsonify("Saved")
 
+class createModel(Resource):
+    def post(self):
+        obj = request.get_json(force=True)
+        out = subprocess.getoutput("cp " + obj['template_model_id'] + " " + obj['new_model_id'])
+        return jsonify("Created")
+
+
 api.add_resource(vanillaEngine, '/infer/vanilla')
 api.add_resource(globalEngine, '/infer/global')
 api.add_resource(privateEngine, '/infer/private')
 
-api.add_resource(privateOnlineTrainer, '/feedback/private')
-api.add_resource(privateBatchTrainer, '/train/private')
-api.add_resource(privateOnlineSave, '/save/private')
-api.add_resource(privateOnlineLoad, '/load/private')
+api.add_resource(universalOnlineTrainer, '/feedback/universal')
+api.add_resource(universalBatchTrainer, '/train/universal')
+
+api.add_resource(universalOnlineTrainer, '/feedback/private')
+api.add_resource(universalBatchTrainer, '/train/private')
+
+api.add_resource(saveModel, '/save/universal')
+api.add_resource(loadModel, '/load/universal')
+
+api.add_resource(createModel, '/create/universal')
 
 # WARNING: DO NOT RUN THIS ON MULTITHREADED WSGI SERVERS!
 if __name__ == '__main__':
-     app.run(port='5000')
+     app.run(host='0.0.0.0', port='5000')
+
+
 

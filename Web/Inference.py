@@ -1,20 +1,6 @@
 import pickle
-#import numpy as np
 import json
 import requests as re
-#import matplotlib.pyplot as plt
-#import tensorflow as tf
-"""
-from tensorflow.keras import layers
-import keras
-from sklearn.model_selection import train_test_split
-import keras.backend as K
-import seaborn as sn
-import pandas as pd
-from sklearn.metrics import *
-import sklearn
-import re
-"""
 
 class InferenceWrapper:
     def __init__(self, engine):
@@ -89,6 +75,7 @@ class NNLM_InferenceEngine:
         self.trainRoot = self.mlApiRoot + "train/"
         self.fbRoot = self.mlApiRoot + "feedback/"
         self.saveRoot = self.mlApiRoot + "save/"
+        self.createRoot = self.mlApiRoot + "create/"
         return None 
     def classify(self, obj):
         #self.soc.send(bytes(text['text'], 'utf-8'))
@@ -127,6 +114,13 @@ class NNLM_InferenceEngine:
         return json.loads(val.text)
     def loadModel(self, obj):
         val = re.post(url = self.loadRoot + obj['model_type'], data = json.dumps(obj))
+        print(val)
+        if val.status_code != 200:
+            return None
+        print(val.text)
+        return json.loads(val.text)
+    def createModel(self, obj):
+        val = re.post(url = self.createRoot + "universal", data = json.dumps(obj))
         print(val)
         if val.status_code != 200:
             return None

@@ -184,6 +184,10 @@ def dashboard():
 
 @app.route("/createModel", methods=["GET", "POST"])
 def createModel():
+    if "login" in session:
+        ss = session['login'] 
+    else:
+        return redirect("/login_user")
     return "Done"
 
 ############################################ JavaScript POST Handlers ############################################
