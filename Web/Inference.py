@@ -89,7 +89,7 @@ class NNLM_InferenceEngine:
         #print('<--->')
         return json.loads(val.text)
     def feedback(self, obj):
-        val = re.post(url = self.fbRoot + obj['model_type'], data = json.dumps(obj))
+        val = re.post(url = self.fbRoot + "universal", data = json.dumps(obj))
         #print('---->>>')
         print(val)
         if val.status_code != 200:
@@ -98,7 +98,7 @@ class NNLM_InferenceEngine:
         #print('<--->')
         return json.loads(val.text)
     def trainDirect(self, obj):
-        val = re.post(url = self.loadRoot + obj['model_type'], data = json.dumps(obj))
+        val = re.post(url = self.loadRoot + "universal", data = json.dumps(obj))
         print(val)
         if val.status_code != 200:
             return None
@@ -106,14 +106,14 @@ class NNLM_InferenceEngine:
         return json.loads(val.text)
         return None
     def saveModel(self, obj):
-        val = re.post(url = self.saveRoot + obj['model_type'], data = json.dumps(obj))
+        val = re.post(url = self.saveRoot + "universal", data = json.dumps(obj))
         print(val)
         if val.status_code != 200:
             return None
         print(val.text)
         return json.loads(val.text)
     def loadModel(self, obj):
-        val = re.post(url = self.loadRoot + obj['model_type'], data = json.dumps(obj))
+        val = re.post(url = self.loadRoot + "universal", data = json.dumps(obj))
         print(val)
         if val.status_code != 200:
             return None
