@@ -98,7 +98,7 @@
                                 <div id="saveModel" style="visibility: hidden">
                                     <button style="width:20%" onclick="saveModel('{{ profile_id | safe }}')">Save Model</button>
                                 </div>
-                                <div id="loadModel" style="visibility: hidden">
+                                <div id="loadModel" style="visibility: visible">
                                     <button style="width:20%" onclick="loadModel('{{ profile_id | safe }}')">Reload Model</button>
                                 </div>
                             </div>
@@ -108,7 +108,6 @@
                         </script>
                     </div>
                 </div><br>
-                <textarea rows=1 cols=30 id="templatekey">default</textarea>
                 <div id="createModel" class="container text-center styled-button">
                     <button id="resume" onclick="createModel('{{ profile_id | safe }}');">Create a new model!</button>
                 </div>

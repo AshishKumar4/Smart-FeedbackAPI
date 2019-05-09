@@ -197,9 +197,12 @@ def dashboard():
 def createModel():
     if "login" in session:
         ss = session['login'] 
-        templatekey = request.values['templatekey']
-        val = db.createNewModel(ss, templatekey)
-        result = AIengine.createModel(val)
+        vv = request.values['templatekey'].split(':')
+        templatekey = vv[0]
+        modelid = vv[1]
+        val,org = db.createNewModel(ss, templatekey, modelid)
+        result = AIengine.createModel({"template_model_id":org['model_id'], "new_model_id":val['model_id']})
+        return result
     else:
         return redirect("/login_user")
     return "Done"

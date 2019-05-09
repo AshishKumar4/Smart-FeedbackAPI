@@ -172,4 +172,15 @@ class Database:
             return None 
         return None
         
-    
+    def createNewModel(self, user, key, newid):
+        d = self.db 
+        try:
+            i = dict(d['api_keys'].find_one({'_id':key}))
+            model = i['model_id']
+            j = dict({"user":user, "model_type":"private", "model_id":newid, "_id":newid})
+            d['api_keys'].save(j)
+            return j,i
+        except:
+            print("Error in creating new model")
+            return None 
+        return None

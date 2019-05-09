@@ -101,7 +101,7 @@ function loadModel(user)
 
 function createModel(user)
 {
-    var key = document.getElementById("templatekey").value;
+    var key = document.getElementById("test-key").value;
     var postdata = {templatekey:key, user:user};
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () 
