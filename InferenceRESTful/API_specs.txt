@@ -19,7 +19,7 @@ Actions possible ->
 
             Example Code =>
 
-            import request as re 
+            import requests as re 
             import json
             postdata = {'text':"Hello World"}
             result = re.post("http://localhost:5000/infer/vanilla", data=json.dumps(postdata))
@@ -32,7 +32,7 @@ Actions possible ->
 
             Example Code =>
 
-            import request as re 
+            import requests as re 
             import json
             postdata = {'text':"Hello World"}
             result = re.post("http://localhost:5000/infer/global", data=json.dumps(postdata))
@@ -45,7 +45,7 @@ Actions possible ->
 
             Example Code =>
 
-            import request as re 
+            import requests as re 
             import json
             postdata = {'text':"Hello World", 'model_id':'testing'}
             result = re.post("http://localhost:5000/infer/private", data=json.dumps(postdata))
@@ -61,7 +61,7 @@ Actions possible ->
             # For Global models, just put model_id = global above 
             Example Code =>
 
-            import request as re 
+            import requests as re 
             import json
             postdata = {'text':"Hello World", 'label':'Negative', 'model_id':'testing'}
             result = re.post("http://localhost:5000/feedback/universal", data=json.dumps(postdata))
@@ -76,7 +76,7 @@ Actions possible ->
             # For Global models, just put model_id = global above 
             Example Code =>
 
-            import request as re 
+            import requests as re 
             import json
             rawdata = open('./dataset.txt','r').read().split('\n')  # Get all lines of the file in a list, each element is one line 
             data = [i.split(':') for i in rawdata]
@@ -93,7 +93,7 @@ Actions possible ->
             # This creates a private model from global classifier
             Example Code =>
 
-            import request as re 
+            import requests as re 
             import json
             postdata = {'template_model_id':"global", 'new_model_id':'newmodel'}
             result = re.post("http://localhost:5000/create/private", data=json.dumps(postdata))
@@ -105,7 +105,7 @@ Actions possible ->
             POST data: {'model_id':'newmodel'}
             Example Code =>
 
-            import request as re 
+            import requests as re 
             import json
             postdata = {'model_id':'newmodel'}
             result = re.post("http://localhost:5000/load/universal", data=json.dumps(postdata))
@@ -117,7 +117,7 @@ Actions possible ->
             POST data: {'model_id':'newmodel'}
             Example Code =>
 
-            import request as re 
+            import requests as re 
             import json
             postdata = {'model_id':'newmodel'}
             result = re.post("http://localhost:5000/save/universal", data=json.dumps(postdata))

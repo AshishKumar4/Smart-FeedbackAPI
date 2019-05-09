@@ -38,7 +38,7 @@ privateModels['global'] = evalModel
 privateModels['vanilla'] = tf.keras.models.load_model('./models/private/vanilla.h5')
 
 def cleaner(text):
-    return ' '.join(tokenizer([text.lower]))
+    return ' '.join(tokenizer([text.lower])[0])
 
 class vanillaEngine(Resource):
     def post(self):
@@ -54,7 +54,7 @@ class globalEngine(Resource):
     def post(self):
         obj = request.get_json(force=True)
         print(obj)
-        val = privateModels['global'].predict(embed(tf.constant([obj['text']]))[:1])
+        val = privateModels['global'].predict(embed(tf.constant([cleaner(obj['text'])]))[:1])
         rr = sentDict[np.argmax(val)]
         #rr.append(list(val))
         print(rr)
@@ -68,7 +68,7 @@ class privateEngine(Resource):
         if obj['model_id'] not in privateModels:
             # Model not already in memory, load it
             privateModels[obj['model_id']] = tf.keras.models.load_model('./models/private/' + obj['model_id'] + '.h5')
-        val = privateModels[obj['model_id']].predict(embed(tf.constant([obj['text']]))[:1])
+        val = privateModels[obj['model_id']].predict(embed(tf.constant([cleaner(obj['text'])]))[:1])
         rr = sentDict[np.argmax(val)]
         #rr.append(list(val))
         print(rr)
