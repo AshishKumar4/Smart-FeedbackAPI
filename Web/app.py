@@ -8,6 +8,7 @@ import subprocess
 from bson import ObjectId
 import hashlib
 import time 
+import requests
 
 from Inference import *
 
@@ -116,8 +117,12 @@ def registerVerify():
             uid = request.form['uname']
             otp = request.form['otp']
 
-            if db.verifyOtpUser(uid, otp):
-               return render_template("/success.html")
+            if True:#db.verifyOtpUser(uid, otp):
+                # Create default API keys for the user
+                val1 = db.createNewAPIKey(uid, uid + "_vanilla", "vanilla", "vanilla")
+                val2 = db.createNewAPIKey(uid, uid + "_global", "global", "global")
+                if val1 and val2:
+                    return render_template("/success.html")
             else: return render_template("/registerVerify.html", uid = uid, resp = "alert('Wrong otp!');")
         except Exception as ex:
             print(ex)
@@ -256,7 +261,7 @@ def inferAPI_feedback():
     val = db.validateApikey(apiKey, user)    
     if val is None:
         return "Api key/User id invalid Invalid, Please try again!"
-    if db.validateCallID(callID, apikey) if False:
+    if db.validateCallID(callID, apiKey) is False:
         return "This callid wasn't made from the given API Key!"
     callData = db.getCallData(callID)
     label = reverseSent[callData['result']]

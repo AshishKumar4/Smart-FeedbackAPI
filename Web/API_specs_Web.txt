@@ -54,3 +54,9 @@ Stateless Actions ->
 
 
         OUTPUT:     {"Created"} if success 
+
+When a user registers successfully, <username>_vanilla and <username>_global API Keys 
+are created automatically, linking to vanilla and global models.
+
+Users can share models amongst each other by simply sending appropriate request to 
+/inferAPI/create, as state above

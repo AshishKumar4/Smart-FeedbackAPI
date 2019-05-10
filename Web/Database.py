@@ -207,5 +207,16 @@ class Database:
             return None 
         return None
 
+    def createNewAPIKey(self, user, key, modeltype, modelid):
+        d = self.db 
+        try:
+            h = {"_id":key, "model_type":modeltype, "model_id":modelid, "user":user}
+            d['api_keys'].save(h)
+        except:
+            print("Error in creating new API Key")
+            return None 
+        return None
+
+
     def validateSharing(self, originaluser, newuser, key):
         return False
