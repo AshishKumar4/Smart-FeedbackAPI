@@ -29,9 +29,26 @@ import os
 import random
 app.secret_key = os.urandom(32)#bytes(str(hex(random.getrandbits(128))), 'ascii')
 
-def valMap(i, imin, imax, omin, omax):
-    aa = omin + (((omax - omin) / (imax - imin)) * (i - imin))  # The valuesula to map ranges
-    return aa
+from flask_mail import Mail, Message
+
+
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'tagclub.vitu@gmail.com'#'tagclub.vituniversity@gmail.com'
+app.config['MAIL_PASSWORD'] = 'TAGnumba1'#'tagTHEclub@19'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
+
+@app.route("/send_email")
+def send_email(email, uid, otp):
+    try:
+        msg = Message('Hello ' + uid, sender=app.config.get("MAIL_USERNAME"), recipients = [email], body = "Hello! " + uid + ", Greetings from Tag club. Please use the following otp : " + otp + " on the link http://phoenix.tagclub.in/registerVerify" )
+        mail.send(msg)
+        return True
+    except Exception as e:
+        print(e)
+        return None
 
 @app.errorhandler(404)
 def page_not_found(e):
