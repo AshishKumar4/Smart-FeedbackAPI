@@ -34,8 +34,8 @@ sentiDict = {0:'negative', 1:'positive'}
 sarcasmDict = {1:'negative', 0:'positive'}
 
 privateModels = dict()
-privateModels['global'] = evalModel
-privateModels['vanilla'] = tf.keras.models.load_model('./models/vanilla.h5')
+privateModels['global'] = tf.keras.models.load_model('./models/global/global.h5')
+privateModels['vanilla'] = tf.keras.models.load_model('./models/vanilla/vanilla.h5')
 
 modelLocationMap = dict()
 modelLocationMap['vanilla'] = lambda obj: obj['model_type'] + '/' + obj['model_id'] + '.h5'

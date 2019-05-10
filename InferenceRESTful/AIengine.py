@@ -20,6 +20,5 @@ embed_method = 'nnlm128'
 
 print("\nLoading embedding layer...")
 embed = hub.load("https://tfhub.dev/google/tf2-preview/nnlm-en-dim128/1")
-print("Fetched the hub module...")
-evalModel = tf.keras.models.load_model('nnlm_evalModel.h5')
+print("Fetched the hub module...")]
 sentDict = {0:["Negative", "Red"], 1:["Positive", "Green"]}
