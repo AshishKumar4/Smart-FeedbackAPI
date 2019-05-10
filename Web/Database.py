@@ -117,6 +117,18 @@ class Database:
             return None
         return None 
     
+    def validateCallID(self, callid, key):
+        d = self.db 
+        try:
+            i = d['api_call_logs'].find_one({'_id':callid})
+            if i['api_key'] == key:
+                return True 
+            return False
+        except:
+            print("Error in fetching callid")
+            return False 
+        return False
+
 
     def getUserInfo(self, uid):
         d = self.db 
@@ -171,6 +183,16 @@ class Database:
             print("Error in fetching callid")
             return None 
         return None
+    
+    def getCallData(self, callid):
+        d = self.db 
+        try:
+            i = d['api_call_logs'].find_one({'_id':callid})
+            return dict(i)
+        except:
+            print("Error in fetching callid")
+            return None 
+        return None
         
     def createNewModel(self, user, key, newid):
         d = self.db 
@@ -184,3 +206,6 @@ class Database:
             print("Error in creating new model")
             return None 
         return None
+
+    def validateSharing(self, originaluser, newuser, key):
+        return False

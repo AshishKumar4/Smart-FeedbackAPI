@@ -44,10 +44,9 @@ function inferText(user)
 
 function feedback(user, feedback)
 {
-    var label = document.getElementById("inference").innerHTML;
     var key = document.getElementById("test-key").value;
     var callid = document.getElementById("callid").innerHTML;
-    var postdata = {label:label, apikey:key, user:user, feedback:feedback, callid:callid};
+    var postdata = {apikey:key, user:user, feedback:feedback, callid:callid};
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () 
     {
@@ -101,8 +100,10 @@ function loadModel(user)
 
 function createModel(user)
 {
-    var key = document.getElementById("test-key").value;
-    var postdata = {templatekey:key, user:user};
+    var dat = document.getElementById("test-key").value.split(':');
+    var templatekey = dat[0];
+    var newkey = dat[1];
+    var postdata = {templatekey:templatekey, newuser:user, originaluser:user, newkey:newkey};
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () 
     {

@@ -13,42 +13,16 @@ INPUT FORMAT: JSON
 OUTPUT FORMAT: JSON
 Actions possible -> 
     1. Inference: Provided text, infers and returns sentiment =>
-        i)  vanillaInference: Infer through vanilla engine:
-            URL: http://<ip>:5000/infer/vanilla
-            POST data: {'text':"Hello World"}
+        i) universalInference: Infer through all engines:
+            URL: http://<ip>:5000/infer/universal
+            POST data: {'text':"Hello World", 'model_id':'abcd', 'model_type':'abcd', 'user':'abcd}
 
             Example Code =>
 
             import requests as re 
             import json
-            postdata = {'text':"Hello World"}
-            result = re.post("http://localhost:5000/infer/vanilla", data=json.dumps(postdata))
-            print(result.text)
-            # OUTPUT: {'Positive','Green'}
-        
-        ii) globalInference: Infer through global engine:
-            URL: http://<ip>:5000/infer/global
-            POST data: {'text':"Hello World"}
-
-            Example Code =>
-
-            import requests as re 
-            import json
-            postdata = {'text':"Hello World"}
-            result = re.post("http://localhost:5000/infer/global", data=json.dumps(postdata))
-            print(result.text)
-            # OUTPUT: {'Positive','Green'}
-
-        ii) privateInference: Infer through Private engines:
-            URL: http://<ip>:5000/infer/private
-            POST data: {'text':"Hello World", 'model_id':'testing'}
-
-            Example Code =>
-
-            import requests as re 
-            import json
-            postdata = {'text':"Hello World", 'model_id':'testing'}
-            result = re.post("http://localhost:5000/infer/private", data=json.dumps(postdata))
+            postdata = {'text':"Hello World", 'model_id':'testing', 'model_type':'private', 'user':'ad,om}
+            result = re.post("http://localhost:5000/infer/universal", data=json.dumps(postdata))
             print(result.text)
             # OUTPUT: {'Positive','Green'}
         
@@ -88,38 +62,38 @@ Actions possible ->
 
     3. Utilities (Load/Save/Create):   
         i)  Create Model: Can create a model and save it physically provided a template model id. 
-            URL: http://<ip>:5000/create/private
-            POST data: {'template_model_id':"global", 'new_model_id':'newmodel'}
+            URL: http://<ip>:5000/create/universal
+            POST data: {'original':{'model_id':'abcd', 'model_type':'abcd', 'user':'abcd}, 'new':{'model_id':'abcd, 'user':'abcd}}
             # This creates a private model from global classifier
             Example Code =>
 
             import requests as re 
             import json
-            postdata = {'template_model_id':"global", 'new_model_id':'newmodel'}
-            result = re.post("http://localhost:5000/create/private", data=json.dumps(postdata))
+            postdata = {'original':{'model_id':'global', 'model_type':'global', 'user':'admin}, 'new':{'model_id':'test2', 'user':'admin}}
+            result = re.post("http://localhost:5000/create/universal", data=json.dumps(postdata))
             print(result.text)
             # OUTPUT: {'Created'}
         
         ii) Load Model: Can load model from disk to memory, Useful for reverting back unwanted changes
             URL: http://<ip>:5000/load/universal
-            POST data: {'model_id':'newmodel'}
+            POST data: {'model_id':'abcd', 'model_type':'abcd', 'user':'abcd}
             Example Code =>
 
             import requests as re 
             import json
-            postdata = {'model_id':'newmodel'}
+            postdata = {'model_id':'newmodel', 'model_type':'private', 'user':'admin}
             result = re.post("http://localhost:5000/load/universal", data=json.dumps(postdata))
             print(result.text)
             # OUTPUT: {'Loaded'}
 
         iii) Save Model: Can save model from memory to disk, IMPORTANT TO WRITE TRAINED CHANGES Physically!
             URL: http://<ip>:5000/save/universal
-            POST data: {'model_id':'newmodel'}
+            POST data: {'model_id':'abcd', 'model_type':'abcd', 'user':'abcd}
             Example Code =>
 
             import requests as re 
             import json
-            postdata = {'model_id':'newmodel'}
+            postdata = {'model_id':'newmodel', 'model_type':'private', 'user':'admin}
             result = re.post("http://localhost:5000/save/universal", data=json.dumps(postdata))
             print(result.text)
             # OUTPUT: {'Saved'}

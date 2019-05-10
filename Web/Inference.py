@@ -80,7 +80,7 @@ class NNLM_InferenceEngine:
     def classify(self, obj):
         #self.soc.send(bytes(text['text'], 'utf-8'))
         #val = self.soc.recv(4096)#self.evalModel.predict(self.embed([text['text']])[:1])
-        val = re.post(url = self.infRoot + obj['model_type'], data = json.dumps(obj))
+        val = re.post(url = self.infRoot + "universal", data = json.dumps(obj))
         #print('---->>>')
         print(val)
         if val.status_code != 200:

@@ -6,6 +6,8 @@ import json
 from werkzeug.utils import secure_filename
 import subprocess
 from bson import ObjectId
+import hashlib
+import time 
 
 from Inference import *
 
@@ -193,38 +195,14 @@ def dashboard():
         return redirect("/login_user")
     return render_template('/500.html')
 
-@app.route("/inferAPI/create", methods=["GET", "POST"])
-def createModel():
-    if "login" in session:
-        try:
-            print("non json request")
-            templatekey = request.values['templatekey']
-            user = request.values['user']
-        except:
-            data = request.get_json(force=True)
-            print("json request")
-            apiKey = data['templatekey']
-            user = data['user']
-            print(data)
-        ss = user
-        vv = templatekey.split(':')
-        templatekey = vv[0]
-        modelid = vv[1]
-        val,org = db.createNewModel(ss, templatekey, modelid)
-        result = AIengine.createModel({"template_model_id":org['model_id'], "new_model_id":val['model_id']})
-        return result
-    else:
-        return redirect("/login_user")
-    return "Done"
-
-############################################ JavaScript POST Handlers ############################################
+############################################ RESTFUL APIs, STATELESS ############################################
 
 # The Restful APIs are defined here
 
 
 # Each unique pair of User and Model has a unique API Key, Hashed with a strong cryptographic function
 # The User must make a post request to /inferAPI/universal with apiKey, user id and test.
-# ApiKey is a hash of User ID and Model ID.  
+# ApiKey is a hash of User ID and Model ID or can be a string defined by the user 
 
 # Example Usage ==>
 #   re.post("http://127.0.0.1:8000/inferAPI/universal", data={'apikey':'default', 'user':'admin', 'text':'Hello World'})
@@ -248,8 +226,8 @@ def inferAPI_universal():
         val = db.validateApikey(apiKey, user)    
         if val is None:
             return "Api key/User id invalid Invalid, Please try again!"
-        result = AIengine.classify({"text":text.lower(), "model_type":val['model_type'], "model_id":val['model_id']})
-        callID = db.logApiCall({"user":user, "api_key":apiKey, "model_type":val['model_type'], "model_id":val['model_id'], "text":text, "result":result[0]})
+        result = AIengine.classify({"text":text.lower(), "model_type":val['model_type'], "model_id":val['model_id'], "user":user})
+        callID = db.logApiCall({"timestamp":time.time(), "user":user, "api_key":apiKey, "model_type":val['model_type'], "model_id":val['model_id'], "text":text, "result":result[0]})
         result.append(str(callID))
         return jsonify(result)#jsonify({"callid":callID, "result":result['text']})
     except Exception as e:
@@ -265,20 +243,23 @@ def inferAPI_feedback():
         apiKey = request.values['apikey']
         user = request.values['user']
         feedback = request.values['feedback']
-        label = request.values['label']
+        #label = request.values['label']
     except:
         data = request.get_json(force=True)
         apiKey = data['apikey']
         user = data['user']
         callID = data['callid']
         feedback = data['feedback']
-        label = data['label']
+        #label = data['label']
     callID = ObjectId(callID)
     print(callID)
     val = db.validateApikey(apiKey, user)    
     if val is None:
         return "Api key/User id invalid Invalid, Please try again!"
-    label = reverseSent[label]
+    if db.validateCallID(callID, apikey) if False:
+        return "This callid wasn't made from the given API Key!"
+    callData = db.getCallData(callID)
+    label = reverseSent[callData['result']]
     if feedback == 'correct':
         return "Done"
     if val['model_type'] == 'vanilla':
@@ -288,12 +269,12 @@ def inferAPI_feedback():
         #db.saveFeedBacks(callID, feedback)
         # A Cron Job would update the model at regular intervals
         print(callID)
-        AIengine.engine.feedback({"model_type":val['model_type'], "model_id":val['model_id'], 'text':db.getTextFromCall(callID), "label":label})
+        AIengine.engine.feedback({"model_type":val['model_type'], "model_id":val['model_id'], 'text':callData['text'], "label":label})
     elif val['model_type'] == 'private':
         # Send request immidiately for Online Learning
         print(callID)
-        AIengine.engine.feedback({"model_type":val['model_type'], "model_id":val['model_id'], 'text':db.getTextFromCall(callID), "label":label})
-    db.logApiFeedback({"user":user, "api_key":apiKey, "model_type":val['model_type'], "model_id":val['model_id'], "callid":callID, "corrected":label})
+        AIengine.engine.feedback({"model_type":val['model_type'], "model_id":val['model_id'], 'text':callData['text'], "label":label})
+    db.logApiFeedback({"timestamp":time.time(), "user":user, "api_key":apiKey, "model_type":val['model_type'], "model_id":val['model_id'], "callid":callID, "corrected":label})
     return "Done"
 
 @app.route("/inferAPI/train", methods=["POST"])
@@ -313,7 +294,7 @@ def inferAPI_train():
     if(val['model_type'] != 'private'):
         return 'This Feature is not available for you, Sorry!'
     AIengine.engine.trainDirect({"model_type":val['model_type'], "model_id":val['model_id'], "dataset":datafile})
-    db.logApiFeedback({"user":user, "api_key":apiKey, "model_type":val['model_type'], "model_id":val['model_id'], "dataset":datafile})
+    db.logApiFeedback({"timestamp":time.time(), "user":user, "api_key":apiKey, "model_type":val['model_type'], "model_id":val['model_id'], "dataset":datafile})
     return "Done..."
 
 @app.route("/inferAPI/save", methods=["POST"])
@@ -363,3 +344,41 @@ def inferAPI_load():
         return jsonify(v)
     except:
         return "Done"
+
+
+@app.route("/inferAPI/create", methods=["GET", "POST"])
+def createModel():
+    if "login" in session:
+        try:
+            print("non json request")
+            templatekey = request.values['templatekey']
+            newkey = request.values['newkey']
+            newuser = request.values['newuser']
+            originaluser = request.values['originaluser']
+        except:
+            data = request.get_json(force=True)
+            print("json request")
+            templatekey = data['templatekey']
+            newkey = data['newkey']
+            newuser = data['newuser']
+            originaluser = data['originaluser']
+            print(data)
+        v1 = db.validateApikey(templatekey, originaluser)    
+        if (v1) is None:
+            return "Api key/User id invalid Invalid, Please try again!"
+        # TODO: Check if Original User allowed new user to share 
+        if(originaluser == newuser):
+            # No check required 
+            pass
+        elif db.validateSharing(originaluser, newuser, templatekey) is False:
+            return "The Original user did not intend to share the model with you"
+        if newkey == "none":
+            newkey = hashlib.md5(bytes(str(hash(newuser+templatekey + str(time.time()))), 'utf-8')).hexdigest()
+        val,org = db.createNewModel(newuser, templatekey, newkey)
+        if val is None:
+            return "the provided New api key is already taken, Provide new key or let us create one for you by using the name 'none'"
+        result = AIengine.engine.createModel({"original":org, "new":val})
+        return jsonify({"key":val['_id'], "result":result})
+    else:
+        return redirect("/login_user")
+    return "Done"
